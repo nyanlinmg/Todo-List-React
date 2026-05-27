@@ -8,6 +8,7 @@ const AppContext = createContext();
 export default function AppProvider() {
     const [mode, setMode] = useState("light");
     const [drawerOpen, setDrawerOpen] = useState(false);
+    const [getCategories, setCategories] = useState([]);
     console.log(drawerOpen);
 
     const theme = useMemo(() => {
@@ -17,7 +18,7 @@ export default function AppProvider() {
     }, [mode]);
 
     return (
-        <AppContext.Provider value={{mode, setMode, drawerOpen, setDrawerOpen}}>
+        <AppContext.Provider value={{mode, setMode, drawerOpen, setDrawerOpen, getCategories, setCategories}}>
             <ThemeProvider theme={theme}>
                 <AppRouter />
                 <CssBaseline />

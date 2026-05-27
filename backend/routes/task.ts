@@ -10,7 +10,7 @@ router.get('/tasks', async (req, res) => {
 })
 
 router.post('/tasks', async(req, res) => {
-    const newTask = req.body?.task;
+    const newTask = req.body?.newtask;
     const categoryId = req.body?.categoryId;
     const done = req.body?.done;
     const priority = req.body?.priority;
@@ -34,7 +34,10 @@ router.post('/tasks', async(req, res) => {
             }
         })
 
-        return res.status(201).json(task);
+        return res.status(201).json({
+            task,
+            msg: "added your task successfully"
+        });
 
     } catch(e) {
         res.status(400).json({msg: "something went wrong"});

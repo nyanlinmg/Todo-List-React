@@ -27,7 +27,7 @@ router.post("/addCategory", async (req, res) => {
             }
         })
 
-        return res.status(201).json("Add category successfully");
+        return res.status(201).json(category);
     } catch(e) {
         res.json(400).json({msg: 'something went wrong'});
     }
