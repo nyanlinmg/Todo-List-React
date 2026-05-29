@@ -13,6 +13,29 @@ router.get('/tasks', async (req, res) => {
     res.status(200).json(tasks);
 })
 
+router.put("/editTask/:id", async (req, res) => {
+    try {
+        const id = Number(req.params.id);
+
+        const newTask = req.body?.newTask;
+        const categoryId = Number(req.body?.categoryId);
+
+        const task = await prisma.task.update({
+            where: {id},
+            data: {
+                tasks: newTask,
+                categoryId
+            }
+        })
+
+        return res.status(200).json({msg: "Added new task successfully"});
+
+    }catch(error) {
+        console.log(error);
+        return res.status(500).json({msg: "Something went wrong"});
+    }
+})
+
 router.put('/doneTask/:id', async (req, res) => {
     
     try {

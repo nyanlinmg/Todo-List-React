@@ -1,4 +1,4 @@
-import { Alert, Badge, Box, Button, Container, FormControl, IconButton, InputLabel, List, ListItem, ListItemButton, MenuItem, OutlinedInput, Select, Typography, Pagination, ListItemText } from "@mui/material";
+import { Alert, Badge, Box, Button, Container, FormControl, IconButton, InputLabel, List, ListItem, ListItemButton, MenuItem, OutlinedInput, Select, Typography, Pagination, ListItemText, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
 import { useForm } from "react-hook-form"
 import "../index.css"
 
@@ -9,7 +9,9 @@ import {
     Delete as DeleteIcon,
     Edit as EditIcon,
     Done as DoneIcon,
-    DoneAll as DoneTasksIcon
+    DoneAll as DoneTasksIcon,
+    Close as CloseIcon,
+    Save as SaveIcon
 } from "@mui/icons-material"
 
 import { useEffect, useState } from "react";
@@ -172,8 +174,113 @@ export default function Home() {
     const currentDoneTasks = filteredDoneTasks.slice(startIndexOfDonePage, endIndexOfDonePage);
     const totalDonePages = Math.ceil(filteredDoneTasks.length / tasksPerDonePage);
 
+    const totalTasks = tasks.length;
+    const doneTasks = filteredDoneTasks.length;
+    const progressPercent = totalTasks === 0 ? 0 : Math.round((doneTasks/totalTasks) * 100);
+
+    const [editingId, setEditingId] = useState(null);
+    const [editText, setEditText] = useState("");
+    const [editCategoryId, setEditCategoryId] = useState("");
+    const [openEditDialog, setOpenEditDialog] = useState(false);
+
+    const startEdit = (task) => {
+        setEditingId(task.id);
+        setEditText(task.tasks);
+        setEditCategoryId(task.category?.id ?? "");
+        setOpenEditDialog(true);
+    }
+
+    const cencelEdit = () => {
+        setEditingId(null);
+        setEditText("");
+        setEditCategoryId("");
+        setOpenEditDialog(false);
+    }
+
+    const saveEdit = async () => {
+        try {
+
+            const res = await fetch(`${api}/editTask/${editingId}`, {
+                method: 'PUT',
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    newTask: editText,
+                    categoryId: editCategoryId,
+                })
+
+            })
+
+            const data = await res.json();
+
+            if(data.msg){
+                setShowBox(data.msg);
+            }
+
+            setTasks(prev => prev.map(
+                data => data.id === editingId ? 
+                {...data, tasks: editText, categoryId: editCategoryId}
+                : data
+            ));
+
+            setTimeout(() => setShowBox(""), 1000);
+            cencelEdit();
+
+        } catch(error) {
+            setError(error);
+        }
+    }
+
     return (
         <Container>
+            <Dialog open={openEditDialog} fullWidth maxWidth="sm">
+                <DialogTitle>
+                    Edit Task
+                    <EditIcon color="primary" sx={{ml : 1}} />
+                </DialogTitle>
+
+                <DialogContent
+                    sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 3,
+                        mt : 1
+                    }}
+                >
+                    <OutlinedInput 
+                        value={editText}
+                        onChange={e => setEditText(e.target.value)}
+                        fullWidth
+                        autoFocus
+                        placeholder="Edit your task..."
+                    />
+
+                    <FormControl fullWidth>
+                        <InputLabel>Category</InputLabel>
+                        <Select
+                            label="Category"
+                            value={editCategoryId}
+                            onChange={e => setEditCategoryId(e.target.value)}
+                        >
+                            {getCategories.map(c => (
+                                <MenuItem value={c.id} key={c.id}>{c.name}</MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                </DialogContent>
+
+                <DialogActions>
+                    <Button onClick={cencelEdit} variant="outlined" color="error">
+                        Cancel
+                    </Button>
+
+                    <Button onClick={saveEdit} variant="outlined" color="success">
+                        Save
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
             <Box>
                 <MotionTypography 
                 color="inherit" sx={{ fontSize: 23, fontWeight: 'bold', borderBottom: '1px solid', pb: 2}
@@ -301,6 +408,7 @@ export default function Home() {
                         {
                             currentTasks.map(data => (
                                 <ListItem 
+                                disablePadding
                                 key={data.id} 
                                 sx={{border: '1px solid', mb: 2, borderColor: mode == "dark" ? "grey" : "black", borderRadius: 1, boxShadow: 3, py: 1}} >
                                     <div>
@@ -311,7 +419,7 @@ export default function Home() {
                                     <div className="me-auto">{data.tasks}</div>
 
                                     <div>
-                                        <ListItemButton>
+                                        <ListItemButton onClick={() => startEdit(data)}>
                                             <EditIcon color="primary" />
                                         </ListItemButton>
                                     </div>
@@ -331,6 +439,45 @@ export default function Home() {
                 ) }
 
             </Container>
+
+            <MotionBox
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, type: 'spring', stiffness: 100, damping: 10 }}
+                sx={{ mb: 5 }}
+            >
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                    <Typography sx={{ fontWeight: 'bold', fontSize: 15 }}>
+                        Overall Progress
+                    </Typography>
+                    <Typography sx={{ fontSize: 14, color: 'grey' }}>
+                        {doneTasks} / {totalTasks} tasks done
+                    </Typography>
+                </Box>
+
+                <Box sx={{
+                    width: '100%',
+                    height: 14,
+                    borderRadius: 50,
+                    bgcolor: mode === 'dark' ? '#2a2a2a' : '#e0e0e0',
+                    overflow: 'hidden'
+                }}>
+                    <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${progressPercent}%` }}
+                        transition={{ duration: 1, ease: 'easeOut', delay: 0.2 }}
+                        style={{
+                            height: '100%',
+                            borderRadius: 50,
+                            background: 'linear-gradient(90deg, #f59e0b, #ef4444)',
+                        }}
+                    />
+                </Box>
+
+                <Typography sx={{ fontSize: 15, color: 'grey', mt: 0.5, textAlign: 'right' }}>
+                    {progressPercent}%
+                </Typography>
+            </MotionBox>
 
             <MotionContainer 
                 sx={{mt:4, mb:6}}
@@ -375,12 +522,6 @@ export default function Home() {
                                 key={data.id} 
                                 sx={{border: '1px solid', mb: 2, borderColor: mode == "dark" ? "grey" : "black", borderRadius: 1, boxShadow: 3, py: 1}} >
                                     <div className="me-auto">{data.tasks}</div>
-
-                                    <div>
-                                        <ListItemButton>
-                                            <EditIcon color="primary" />
-                                        </ListItemButton>
-                                    </div>
                                     <div>
                                         <ListItemText sx={{color: 'orange'}} primary={data.category?.name} />
                                     </div>
