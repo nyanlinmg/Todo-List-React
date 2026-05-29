@@ -12,7 +12,9 @@ import {
 import { yellow } from "@mui/material/colors";
 
 export default function Header() {
-    const {mode, setMode, drawerOpen, setDrawerOpen} = useApp();
+    const {mode, setMode, drawerOpen, setDrawerOpen, tasks, setTasks} = useApp();
+
+    const doneTasks = tasks.filter(data => data.done);
 
     return (
         <AppBar position="static" color="warning">
@@ -24,7 +26,7 @@ export default function Header() {
                     <MenuIcon />
                 </IconButton>
 
-                <Badge badgeContent={5} sx={{ms: 2, ml: 3}} color="primary">
+                <Badge badgeContent={doneTasks.length} sx={{ms: 2, ml: 3}} color="primary">
                     <TaskIcon />
                 </Badge>
 
