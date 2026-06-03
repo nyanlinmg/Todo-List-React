@@ -13,6 +13,23 @@ router.get("/categories", async(req, res) => {
     res.status(200).json(categories);
 })
 
+router.get("/category/:id", async(req, res)  => {
+    const id = Number(req.params.id);
+
+    if(isNaN(id)) {
+        return res.status(400).json({msg: 'id must be a number'});
+    }
+
+    const category = await prisma.category.findUnique({
+        where: {id},
+        include: {
+            tasks: true
+        }
+    })
+
+    return res.status(200).json(category);
+});
+
 router.post("/addCategory", async (req, res) => {
     const name = req.body?.name;
 

@@ -1,6 +1,7 @@
 import { Alert, Badge, Box, Button, Container, FormControl, IconButton, InputLabel, List, ListItem, ListItemButton, MenuItem, OutlinedInput, Select, Typography, Pagination, ListItemText, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
 import { useForm } from "react-hook-form"
 import "../index.css"
+import { deleteTask } from "../services/taskService"
 
 import {
     AddTask as AddTaskIcon ,
@@ -81,27 +82,6 @@ export default function Home() {
         })
     }, [])
 
-    useEffect(() => {
-
-        const fetchTasks = async () => {
-            setLoading(true);
-
-            try {
-                const res = await fetch(`${api}/tasks`);
-                const data = await res.json();
-
-                setTasks(data);
-
-            } catch (error) {
-                setError(error);
-            } finally {
-                setLoading(false);
-            }
-        }
-
-        fetchTasks();
-    }, [])
-
     const done = async (id) => {
         try{
 
@@ -131,12 +111,7 @@ export default function Home() {
 
         if(confirm){
             try {
-
-                const res = await fetch(`${api}/deleteTask/${id}`, {
-                    method: 'DELETE'
-                });
-
-                const data = await res.json();
+                const data = await deleteTask(id);
 
                 setTasks(prev => prev.filter(task => task.id !== id))
                 setShowBox(data.msg)
@@ -145,7 +120,7 @@ export default function Home() {
                 console.log(data);
 
             } catch (error) {
-                setError(error);
+                setError(error.message);
             }
         } else {
             return false;

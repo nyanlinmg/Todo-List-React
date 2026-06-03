@@ -1,5 +1,6 @@
 import { AppBar, Badge, IconButton, Toolbar, Typography } from "@mui/material";
 import { useApp } from "../AppProvider"
+import { useState, useEffect } from "react";
 
 import {
     Menu as MenuIcon,
@@ -14,8 +15,6 @@ import { yellow } from "@mui/material/colors";
 export default function Header() {
     const {mode, setMode, drawerOpen, setDrawerOpen, tasks, setTasks} = useApp();
 
-    const doneTasks = tasks.filter(data => data.done);
-
     return (
         <AppBar position="static" color="warning">
             <Toolbar>
@@ -26,7 +25,7 @@ export default function Header() {
                     <MenuIcon />
                 </IconButton>
 
-                <Badge badgeContent={doneTasks.length} sx={{ms: 2, ml: 3}} color="primary">
+                <Badge badgeContent={tasks.filter(task => task.done).length} sx={{ms: 2, ml: 3}} color="primary">
                     <TaskIcon />
                 </Badge>
 

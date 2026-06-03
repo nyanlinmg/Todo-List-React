@@ -2,6 +2,7 @@
 import { createTheme, CssBaseline, ThemeProvider } from "@mui/material"
 import { createContext, useContext, useMemo, useState } from "react"
 import AppRouter from "./AppRouter";
+import { useEffect } from "react";
 
 const AppContext = createContext();
 
@@ -17,6 +18,21 @@ export default function AppProvider() {
             palette: {mode}
         })
     }, [mode]);
+
+    useEffect(() => {
+        const fetchTasks = async () => {
+            try {
+                const res = await fetch("http://localhost:8800/tasks");
+                const data = await res.json();
+
+                setTasks(data);
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        fetchTasks();
+    }, []);
 
     return (
         <AppContext.Provider value={{mode, setMode, drawerOpen, setDrawerOpen, getCategories, setCategories, tasks, setTasks}}>

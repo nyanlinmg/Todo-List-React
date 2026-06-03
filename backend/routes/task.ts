@@ -28,7 +28,7 @@ router.put("/editTask/:id", async (req, res) => {
             }
         })
 
-        return res.status(200).json({msg: "Added new task successfully"});
+        return res.status(200).json({msg: "Edited new task successfully"});
 
     }catch(error) {
         console.log(error);
