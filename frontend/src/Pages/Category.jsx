@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { Container, IconButton, Typography, Box, ListItem, List, ListItemIcon, ListItemButton } from "@mui/material";
-import  { motion } from "framer-motion";
+import { Container, IconButton, Typography, Box, ListItem, List, ListItemButton, Menu, MenuItem } from "@mui/material";
+import { motion } from "framer-motion";
 import "../index.css"
 import { useApp } from "../AppProvider";
 import { deleteTask } from "../services/taskService"
@@ -11,58 +11,46 @@ import {
     Delete as DeleteIcon,
 } from "@mui/icons-material"
 
-
-const api = "http://localhost:8800";
-
 const MotionContainer = motion(Container);
 
 export default function Category() {
     const { id } = useParams();
-    const [data, setData] = useState({name: "",
-        tasks: []
-    });
-    const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
+    const { tasks, setTasks, tasksLoading, tasksError, getCategories } = useApp();
+    const [showBox, setShowBox] = useState("");
+    const [anchorEl, setAnchorEl] = useState(null);
+    const [sortType, setSortType] = useState("default");
 
-    const fetchCategory = async () => {
-        setIsLoading(true);
+    const categoryName = getCategories.find(category => category.id === Number(id));
 
-        try {
-            const res = await fetch(`${api}/category/${id}`);
-             
-            if(!res.ok) {
-                const error = await res.json();
-                throw new Error(error.msg);
-            }
+    const filteredCategories = tasks.filter(task => task.categoryId == Number(id));
+    console.log(filteredCategories);
 
-            const data = await res.json();
-            setData(data);
+    const sortedTasks = () => {
+        const list = [...filteredCategories];
+        if (sortType === "completed") return list.filter(prev  => prev.done);
+        if (sortType === "az") return list.sort((a, b) => a.tasks.localeCompare(b.tasks));
+        if (sortType === "za") return list.sort((a, b) => b.tasks.localeCompare(a.tasks));
+        if (sortType === "date") return list.sort((a, b) => new Date(b.created) - new Date(a.created));
+        return list; // default
+    };
 
-        }catch(error) {
-            setError(error.message);
-        }finally {
-            setIsLoading(false);
-        }
-    }
+    const handleSortClick = (e) => setAnchorEl(
+        e.currentTarget
+    );
+    const handleSortClose = () => setAnchorEl(null);
+    const handleSort = (type) => {
+        setSortType(type);
+        handleSortClose();
+    };
 
-    useEffect(() => {
-        fetchCategory();
-    }, [id])
-
-    console.log(data);
-
-    const del = async (taskId) => {
-        if(window.confirm("Are you sure you want to delete this task?")) {
-            try{
-
-                const data = await deleteTask(taskId);
-
-                setData(prev => ({
-                    ...prev,
-                    tasks: prev.tasks.filter(task => task.id !== taskId)
-                }))
-
-            }catch(error) {
+    const del = async (id) => {
+        if (window.confirm("Are you sure you want to delete this task?")) {
+            try {
+                const data = await deleteTask(id);
+                if (data) setShowBox(data.msg);
+                setTasks(prev => prev.filter(task => task.id !== id));
+            } catch (error) {
                 setError(error.message);
             }
         }
@@ -70,25 +58,41 @@ export default function Category() {
 
     return (
         <Container>
-            <Box sx={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 4, 'borderBottom': '1px solid',pb: 2, mb: 3}}>
-                <Typography sx={{fontSize: 25,fontWeight:'bold'}}>
-                    Category: <small className="font-bold text-amber-600 text-[25px]">{data.name}</small>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 4, borderBottom: '1px solid', pb: 2, mb: 3 }}>
+                <Typography sx={{ fontSize: 25, fontWeight: 'bold' }}>
+                    Category: <small className="font-bold text-amber-600 text-[25px]">{categoryName?.name}</small>
                 </Typography>
 
-                <IconButton color="primary" title="sort">
+                <IconButton color="primary" onClick={handleSortClick}>
                     <SortIcon />
-                    <Typography sx={{fontSize: 12, fontWeight: 'bold', ml: 1}}>Sort</Typography>
+                    <Typography sx={{ fontSize: 12, fontWeight: 'bold', ml: 1 }}>Sort</Typography>
                 </IconButton>
+
+                <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleSortClose}>
+                    <MenuItem onClick={() => handleSort("default")}  selected={sortType === "default"}>Default</MenuItem>
+                    <MenuItem onClick={() => handleSort("completed")} selected={sortType === "completed"}>Completed</MenuItem>
+                    <MenuItem onClick={() => handleSort("date")}      selected={sortType === "date"}>Sort by Date</MenuItem>
+                    <MenuItem onClick={() => handleSort("az")}        selected={sortType === "az"}>A → Z</MenuItem>
+                    <MenuItem onClick={() => handleSort("za")}        selected={sortType === "za"}>Z → A</MenuItem>
+                </Menu>
             </Box>
 
             <Box>
-                {isLoading && <Typography>Loading...</Typography>}
-                {error && <Typography color="error">{error}</Typography>}
+                {tasksLoading && <Typography>Loading...</Typography>}
+                {tasksError && <Typography color="error">{tasksError}</Typography>}
+                {showBox && <Typography color="success">{showBox}</Typography>}
+
+                {filteredCategories.length === 0 && (
+                    <Typography color="warning">No tasks in this category</Typography>
+                )}
 
                 <List>
-                    {data.tasks.map(task => (
-                        <ListItem key={task.id} sx={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2, border: '1px solid', borderRadius: 1, p: 2, boxShadow: 3}}>
-                            <Typography>{task.tasks}</Typography>
+                    {sortedTasks().map(task => (
+                        <ListItem key={task.id} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2, border: '1px solid', borderRadius: 1, p: 2, boxShadow: 3 }}>
+                            <Typography sx={{ display: 'flex', gap: 2 }}>
+                                {task.tasks}
+                                {task.done && <Typography color="success" component="span">Completed</Typography>}
+                            </Typography>
                             <Box>
                                 <ListItemButton onClick={() => del(task.id)}>
                                     <DeleteIcon color="error" />

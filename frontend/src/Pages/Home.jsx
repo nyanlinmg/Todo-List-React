@@ -1,7 +1,7 @@
 import { Alert, Badge, Box, Button, Container, FormControl, IconButton, InputLabel, List, ListItem, ListItemButton, MenuItem, OutlinedInput, Select, Typography, Pagination, ListItemText, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
 import { useForm } from "react-hook-form"
 import "../index.css"
-import { deleteTask } from "../services/taskService"
+import { deleteTask} from "../services/taskService"
 
 import {
     AddTask as AddTaskIcon ,
@@ -30,10 +30,9 @@ const MotionContainer = motion(Container);
 
 export default function Home() {
     const [ categoryId, setCategoryId ] = useState("");
-    const { mode, setMode , setCategories, getCategories, tasks, setTasks} = useApp();
+    const { mode, setMode , setCategories, getCategories, tasks, setTasks, tasksLoading, tasksError } = useApp();
     const [ error, setError ] = useState();
     const [ showBox, setShowBox ] = useState("");
-    const [ loading, setLoading ] = useState(false);
 
     const {
         register,
@@ -131,7 +130,6 @@ export default function Home() {
     console.log(categoryId);
     console.log(showBox);
     console.log(tasks);
-    console.log(error)
 
     const [page, setPage] = useState(1);
     const tasksPerPage = 5;
@@ -365,7 +363,7 @@ export default function Home() {
 
                 { filteredTasks.length == 0 && <Alert severity="warning" sx={{mt: 2}}>No tasks found</Alert> }
 
-                { loading ? (
+                { tasksLoading ? (
                     <h1>Loading...</h1>
                 ) : (
                     <MotionList sx={{mt : 2}} 

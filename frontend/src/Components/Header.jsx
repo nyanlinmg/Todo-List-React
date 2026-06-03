@@ -13,7 +13,7 @@ import {
 import { yellow } from "@mui/material/colors";
 
 export default function Header() {
-    const {mode, setMode, drawerOpen, setDrawerOpen, tasks, setTasks} = useApp();
+    const {mode, setMode, drawerOpen, setDrawerOpen, tasks, setTasks } = useApp();
 
     return (
         <AppBar position="static" color="warning">
