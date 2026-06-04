@@ -17,11 +17,12 @@ import {
     Add as AddIcon,
     CheckCircle as CheckCircleIcon,
     PriorityHigh as PriorityHighIcon,
+    Checklist as CheckListIcon
 } from "@mui/icons-material"
 import { useNavigate } from "react-router-dom";
 
 export default function AppDrawer() {
-    const { drawerOpen, setDrawerOpen, mode, setMode } = useApp();
+    const { drawerOpen, setDrawerOpen, mode, setMode, getCategories } = useApp();
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
     const navigate = useNavigate();
@@ -62,36 +63,14 @@ export default function AppDrawer() {
                     </ListItem>
                     <Collapse in={dropdownOpen} timeout="auto" unmountOnExit>
                         <List disablePadding>
-                            <ListItem disablePadding>
-                                <ListItemButton sx={{ pl: 4 }} onClick={() => { navigate('/category/1'); setDrawerOpen(false);  }} >
-                                    <WorkIcon sx={{mr: 1}} color="primary" />
-                                    <ListItemText primary="Work" />
-                                </ListItemButton>
-                            </ListItem>
-                            <ListItem disablePadding>
-                                <ListItemButton sx={{ pl: 4 }} onClick={() => { navigate('/category/2'); setDrawerOpen(false);  }} >
-                                    <MenuBookIcon sx={{mr: 1}} color="primary" />
-                                    <ListItemText primary="Study" />
-                                </ListItemButton>
-                            </ListItem>
-                            <ListItem disablePadding>
-                                <ListItemButton sx={{ pl: 4 }} onClick={() => { navigate('/category/3'); setDrawerOpen(false);  }} >
-                                    <PersonIcon sx={{mr: 1}} color="primary" />
-                                    <ListItemText primary="Personal" />
-                                </ListItemButton>
-                            </ListItem>
-                            <ListItem disablePadding>
-                                <ListItemButton sx={{ pl: 4 }} onClick={() => { navigate('/category/4'); setDrawerOpen(false);  }} >
-                                    <ShoppingCartIcon sx={{mr: 1}} color="primary" />
-                                    <ListItemText primary="Shop" />
-                                </ListItemButton>
-                            </ListItem>
-                            <ListItem disablePadding>
-                                <ListItemButton sx={{ pl: 4 }} onClick={() => { navigate('/category/5'); setDrawerOpen(false);  }  } >
-                                    <HealthIcon sx={{mr: 1}} color="primary" />
-                                    <ListItemText primary="Health" />
-                                </ListItemButton>
-                            </ListItem>
+                            {getCategories.map((category) => (
+                                <ListItem disablePadding key={category.id}>
+                                    <ListItemButton sx={{ pl: 4 }} onClick={() => { navigate(`/category/${category.id}`); setDrawerOpen(false); }}>
+                                        <CheckListIcon sx={{ mr: 1 }} color="primary" />
+                                        <ListItemText primary={category.name} />
+                                    </ListItemButton>
+                                </ListItem>
+                            ))}
                         </List>
                     </Collapse>
 

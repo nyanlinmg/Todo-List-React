@@ -22,6 +22,7 @@ export default function Category() {
     const [sortType, setSortType] = useState("default");
 
     const categoryName = getCategories.find(category => category.id === Number(id));
+    console.log(categoryName);
 
     const filteredCategories = tasks.filter(task => task.categoryId == Number(id));
     console.log(filteredCategories);
@@ -86,10 +87,6 @@ export default function Category() {
                 {tasksLoading && <Typography>Loading...</Typography>}
                 {tasksError && <Typography color="error">{tasksError}</Typography>}
                 {showBox && <Typography color="success">{showBox}</Typography>}
-
-                {filteredCategories.length === 0 && (
-                    <Typography color="warning">No tasks in this category</Typography>
-                )}
 
                 <List>
                     {

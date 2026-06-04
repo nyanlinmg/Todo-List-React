@@ -14,7 +14,7 @@ export default function AppProvider() {
     const [tasks, setTasks] = useState([]);
     const [tasksLoading, setTasksLoading] = useState(false);
     const [tasksError, setTasksError] = useState(null);
-    console.log(drawerOpen);
+    console.log(drawerOpen); 
 
     const theme = useMemo(() => {
         return createTheme({

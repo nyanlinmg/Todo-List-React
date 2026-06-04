@@ -10,6 +10,8 @@ router.get("/categories", async(req, res) => {
         }
     });
 
+    const total = await categories.length;
+
     res.status(200).json(categories);
 })
 
@@ -24,11 +26,48 @@ router.get("/category/:id", async(req, res)  => {
         where: {id},
         include: {
             tasks: true
-        }
-    })
+        },  
+    });
 
     return res.status(200).json(category);
 });
+
+router.delete("/removeCategory/:id", async(req, res) => {
+    try{
+        const id = Number(req.params.id);
+
+        if(isNaN(id)){
+            return res.json(400).json({msg: "id must be number"});
+        }
+
+        const findCategory = await prisma.category.findUnique({
+            where: {id}
+        });
+
+        if(!findCategory){
+            return res.status(404).json({msg: "category not found"});
+        }
+
+        const count = await prisma.task.count({
+            where: {
+                categoryId: id
+            }
+        })
+
+        if(count > 0){
+            return res.status(401).json({msg: "Delete your tasks first , you are not allowed to delete this category."});
+        }
+
+        const deleteData = await prisma.category.delete({
+            where: {id}
+        });
+
+        return res.status(200).json(deleteData);
+
+    }catch(error){
+        return res.status(500).json("Somthing went wrong");
+    }
+})
 
 router.post("/addCategory", async (req, res) => {
     const name = req.body?.name;

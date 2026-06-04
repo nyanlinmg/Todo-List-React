@@ -70,19 +70,6 @@ export default function Home() {
         })
     }
 
-    useEffect(() => {
-        fetch(`${api}/categories`, {
-            method: 'GET'
-        })
-        .then(res => res.json())
-        .then(data => {
-            setCategories(data);
-        })
-        .catch(e => {
-            setError(e)
-        })
-    }, [])
-
     const done = async (id) => {
         try{
 
