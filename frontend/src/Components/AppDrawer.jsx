@@ -105,24 +105,6 @@ export default function AppDrawer() {
 
                 <Divider />
 
-                <List>
-                    <ListItem disablePadding>
-                        <ListItemButton onClick={() => { navigate('/completed'); setDrawerOpen(false);  }} >
-                            <CheckCircleIcon sx={{mr: 1}} color="primary" />
-                            <ListItemText primary="Completed" />
-                        </ListItemButton>
-                    </ListItem>
-
-                    <ListItem disablePadding>
-                        <ListItemButton onClick={() => { navigate('/priority'); setDrawerOpen(false);  }} >
-                            <PriorityHighIcon sx={{mr: 1}} color="primary" />
-                            <ListItemText primary="Priority" />
-                        </ListItemButton>
-                    </ListItem>
-                </List>
-
-                <Divider />
-
             </Container>
         </Drawer>
     )

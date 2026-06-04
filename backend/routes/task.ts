@@ -76,6 +76,36 @@ router.delete('/deleteTask/:id', async (req, res) => {
     }
 })
 
+router.put('/priority/:id', async(req,res)=>{
+    try {
+        const id = Number(req.params.id);
+
+        const data = await prisma.task.findUnique({
+            where: {id}
+        })
+
+        if(!data) {
+            return res.status(404).json({msg: "Task not found"}); 
+        };
+
+        if(isNaN(id)) {
+            return res.status(400).json({msg: "id must be number"});
+        }
+
+        const updatePriority = await prisma.task.update({
+            where: {id},
+            data: {
+                priority: !data.priority
+            }
+        })
+
+        return res.status(200).json(updatePriority);
+
+    }catch(err) {
+        return res.status(500).json({msg: "Failed to update priority"});
+    }
+})
+
 router.post('/tasks', async(req, res) => {
     const newTask = req.body?.newtask;
     const categoryId = req.body?.categoryId;

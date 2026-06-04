@@ -32,6 +32,7 @@ export default function Category() {
         if (sortType === "az") return list.sort((a, b) => a.tasks.localeCompare(b.tasks));
         if (sortType === "za") return list.sort((a, b) => b.tasks.localeCompare(a.tasks));
         if (sortType === "date") return list.sort((a, b) => new Date(b.created) - new Date(a.created));
+        if (sortType === "priority") return list.filter(data => data.priority) ?? "No tasks found";
         return list; // default
     };
 
@@ -74,6 +75,10 @@ export default function Category() {
                     <MenuItem onClick={() => handleSort("date")}      selected={sortType === "date"}>Sort by Date</MenuItem>
                     <MenuItem onClick={() => handleSort("az")}        selected={sortType === "az"}>A → Z</MenuItem>
                     <MenuItem onClick={() => handleSort("za")}        selected={sortType === "za"}>Z → A</MenuItem>
+                    <MenuItem onClick={() => handleSort("priority")}
+                    selected={sortType === "priority"}>
+                        Priority
+                    </MenuItem>
                 </Menu>
             </Box>
 
@@ -87,19 +92,26 @@ export default function Category() {
                 )}
 
                 <List>
-                    {sortedTasks().map(task => (
-                        <ListItem key={task.id} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2, border: '1px solid', borderRadius: 1, p: 2, boxShadow: 3 }}>
-                            <Typography sx={{ display: 'flex', gap: 2 }}>
-                                {task.tasks}
-                                {task.done && <Typography color="success" component="span">Completed</Typography>}
-                            </Typography>
-                            <Box>
-                                <ListItemButton onClick={() => del(task.id)}>
-                                    <DeleteIcon color="error" />
-                                </ListItemButton>
-                            </Box>
-                        </ListItem>
-                    ))}
+                    {
+                        sortedTasks().length > 0 ?
+                        sortedTasks().map(task => (
+                            <ListItem key={task.id} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2, border: '1px solid', borderRadius: 1, p: 2, boxShadow: 3 }}>
+                                <Typography sx={{ display: 'flex', gap: 2 }}>
+                                    {task.tasks}
+                                    {task.done && <Typography color="success" component="span">Completed</Typography>}
+                                    {task.priority && <Typography component="span"
+                                    color="warning">
+                                        Priority
+                                    </Typography>}
+                                </Typography>
+                                <Box>
+                                    <ListItemButton onClick={() => del(task.id)}>
+                                        <DeleteIcon color="error" />
+                                    </ListItemButton>
+                                </Box>
+                            </ListItem>
+                        )) : <Typography color="warning">No tasks found</Typography>
+                    }
                 </List>
             </Box>
         </Container>

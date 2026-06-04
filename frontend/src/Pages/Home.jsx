@@ -12,7 +12,9 @@ import {
     Done as DoneIcon,
     DoneAll as DoneTasksIcon,
     Close as CloseIcon,
-    Save as SaveIcon
+    Save as SaveIcon,
+    Favorite as FavoriteIcon,
+    FavoriteBorder as FavoriteBorderIcoon
 } from "@mui/icons-material"
 
 import { useEffect, useState } from "react";
@@ -102,6 +104,27 @@ export default function Home() {
 
         }catch(e) {
             setError(e);
+        }
+    }
+
+    const handlePriority = async(id) => {
+        try{
+            const res = await fetch(`${api}/priority/${id}`, {
+                method: 'PUT'
+            });
+
+            if(!res.ok){
+                const error =  await res.json();
+                throw new Error(error.msg);
+            }
+
+            const data = await res.json();
+
+            setTasks(prev => prev.map(task => task?.id === id ? {...task, priority : data.priority}  : task));
+            setError("");
+
+        }catch(error){
+            setError(error.message);
         }
     }
 
@@ -389,8 +412,17 @@ export default function Home() {
                                             <DoneIcon color="success" />
                                         </ListItemButton>
                                     </div>
-                                    <div className="me-auto">{data.tasks}</div>
+                                    <div>{data.tasks}</div>
+                                    <div className="me-auto">
+                                        <ListItemButton 
+                                        onClick={() => handlePriority(data.id)}
+                                        >
+                                            {data.priority ? <FavoriteIcon color="error" />:
+                                            <FavoriteBorderIcoon color="error" />}
+                                        </ListItemButton>
+                                    </div>
 
+                                    
                                     <div>
                                         <ListItemButton onClick={() => startEdit(data)}>
                                             <EditIcon color="primary" />
