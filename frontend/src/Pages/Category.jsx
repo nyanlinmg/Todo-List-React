@@ -41,6 +41,7 @@ export default function Category() {
         e.currentTarget
     );
     const handleSortClose = () => setAnchorEl(null);
+    
     const handleSort = (type) => {
         setSortType(type);
         handleSortClose();

@@ -364,10 +364,10 @@ export default function Home() {
                         }}
                     >
                         <Pagination
-                        page={page}
-                        count={totalPages}
-                        onChange={(e, value) => setPage(value)}
-                    />
+                            page={page}
+                            count={totalPages}
+                            onChange={(e, value) => setPage(value)}
+                        />
                     </MotionBox>
                 </MotionTypography>
 
